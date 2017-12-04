@@ -3,18 +3,26 @@ function Get-Lockouts(){
 
     <#
     .Synopsis
+        List Active Directory lockouts
     .Description
+        This will pull a list of domain controllers and poll them for lockouts for the specified user.
     .Inputs
+        Active Directory Username
     .Outputs
+        List of servers, number of failed attempts, and lockout time. This also spits out an object for further use.
     .Link
+        https://github.com/Blacknight318/PSScripts/blob/master/ADLockoutModule.ps1
     #>
 
     [CmdletBinding()]
-    param($User)
+    param(    
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$User
+    )
 
     $DomainControllers = Get-ADDomainController -Filter *
     $prop = @('LockedOut', 'AccountLockoutTime', 'BadLogonCount', 'LastBadPasswordAttempt', 'LastLogonDate', 'msDS-UserPasswordExpiryTimeComputed')
-    #$writeItem = New-Object System.Object
     $listBad = @()
     try {
         [string[]] $blist = Get-Content blistdc.txt -ErrorAction Stop
@@ -29,17 +37,14 @@ function Get-Lockouts(){
         }
         catch { Write-Host $DC.Name "Failed to read, consider adding to blacklist!" -foregroundcolor red }
         if($locked.LockedOut -eq "True"){
-            #$DC.Name
-            #Get-ADUser -Identity $user -Server $DC -Properties $prop | Select-Object -Property 'LockedOut', 'AccountLockoutTime', 'BadLogonCount', 'LastBadPasswordAttempt', 'LastLogonDate', @{Name="ExpiryDate";Expression={[datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed")}}
             $deets = Get-ADUser -Identity $user -Server $DC -Properties $prop
             $writeItem = New-Object System.Object
                 $writeItem | Add-Member NoteProperty -Name "Domain Controller" -Value $DC.Name
                 $writeItem | Add-Member NoteProperty -Name "Bad Attempts" -Value $deets.BadLogonCount
                 $writeItem | Add-Member NoteProperty -Name "Lockout time" -Value $deets.AccountLockoutTime
-                #$writeItem | Add-Member NoteProperty -Name "Last Bad Attempt" -Value $deets.LastBadPasswordAttempt
             $listBad += $writeItem
-            #$writeItem | Export-Csv -NoTypeInformation -Append -Path "track_$((Get-Date).ToString('MM-dd-yy')).csv"
          }
     }
     $listBad | Out-GridView
 }
+
