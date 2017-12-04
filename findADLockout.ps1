@@ -31,13 +31,13 @@ if($gonogo -eq "True")
     $unlock = Read-Host -Prompt 'Would you like to run unlock?'
     If ($unlock -eq "y" -or $unlock -eq "Y")
     {
-        <#If ($creds -eq $null){
+        If ($creds -eq $null){
             $creds = Get-Credential
-        }#>
+        }
         foreach($bad in $badPool)
         {
             $bad.Name
-            Unlock-ADAccount -Identity $user -Server $bad #-Credential $creds
+            Unlock-ADAccount -Identity $user -Server $bad -Credential $creds
         }
     }
 }
