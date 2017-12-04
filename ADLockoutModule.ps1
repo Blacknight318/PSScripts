@@ -24,6 +24,7 @@ function Get-Lockouts(){
     $DomainControllers = Get-ADDomainController -Filter *
     $prop = @('LockedOut', 'AccountLockoutTime', 'BadLogonCount', 'LastBadPasswordAttempt', 'LastLogonDate', 'msDS-UserPasswordExpiryTimeComputed')
     $listBad = @()
+    $servs = @()
     try {
         [string[]] $blist = Get-Content blistdc.txt -ErrorAction Stop
     }
@@ -43,8 +44,49 @@ function Get-Lockouts(){
                 $writeItem | Add-Member NoteProperty -Name "Bad Attempts" -Value $deets.BadLogonCount
                 $writeItem | Add-Member NoteProperty -Name "Lockout time" -Value $deets.AccountLockoutTime
             $listBad += $writeItem
+            $servs += DC.Name
          }
     }
-    $listBad | Out-GridView
+    $listBad
+    $clearLocks = Read-Host -Prompt "Press enter to unlock, press Ctrl+C to exit"
+
+    if($clearLocks -eq ""){
+        Clear-Lockouts -User $User -Servers $servs
+    }
 }
 
+Function Clear-Lockouts{
+    <#
+    .Synopsis
+        Clear Lockouts
+    .Description
+        Clear lockouts for a given user on all supplied Domain Controllers
+    .Inputs
+        Active Directory Username(required) and Domain Controllers(optional, if none supplied all available Domain Controllers will be cleared)
+    .Outputs
+        Servers where lockouts were cleared
+    .Link
+        https://github.com/Blacknight318/PSScripts/blob/master/ADLockoutModule.ps1
+    #>
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$User,
+
+        [Parameter(Mandatory=$false)]
+        [string[]]$Servers
+    )
+    
+    $creds = Get-Credential
+
+    if($Servers -eq ""){
+        $Servers = Get-ADDomainController -Filter *
+    }
+    IF ($blist -contains $DC.Name) {Continue}
+    foreach($Server in $servers){
+        Unlock-ADAccount -Identity $User -Server $Server -Credential $creds
+        Write-Host $Server " unlocked"
+    }
+}
