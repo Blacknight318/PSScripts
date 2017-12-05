@@ -44,7 +44,7 @@ function Get-Lockouts(){
                 $writeItem | Add-Member NoteProperty -Name "Bad Attempts" -Value $deets.BadLogonCount
                 $writeItem | Add-Member NoteProperty -Name "Lockout time" -Value $deets.AccountLockoutTime
             $listBad += $writeItem
-            $servs += DC.Name
+            $servs += $DC.Name
          }
     }
     $listBad
