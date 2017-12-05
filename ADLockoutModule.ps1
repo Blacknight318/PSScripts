@@ -85,9 +85,10 @@ Function Clear-Lockouts{
     if($Servers -eq ""){
         $Servers = Get-ADDomainController -Filter *
     }
-    IF ($blist -contains $DC.Name) {Continue}
-    foreach($Server in $servers){
+    IF ($blist -contains $Servers.Name) {Continue}
+    foreach($Server in $Servers){
         Unlock-ADAccount -Identity $User -Server $Server -Credential $creds
         Write-Host $Server " unlocked"
     }
+    #Invoke-Command -ComputerName $Servers -Credential $creds {Unlock-ADAccount -Identity $User -Credential $creds}
 }
