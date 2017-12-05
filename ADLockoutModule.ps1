@@ -48,6 +48,7 @@ function Get-Lockouts(){
          }
     }
     $listBad
+    if($servs.length -eq 0){break}
     $clearLocks = Read-Host -Prompt "Press enter to unlock, press Ctrl+C to exit"
 
     if($clearLocks -eq ""){
