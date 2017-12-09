@@ -20,7 +20,7 @@ function Get-Lockout(){
         [ValidateNotNullOrEmpty()]
         [string]$User
     )
-
+    $start = Get-Date
     $DomainControllers = Get-ADDomainController -Filter *
     #$prop = @('LockedOut', 'AccountLockoutTime', 'BadLogonCount', 'LastBadPasswordAttempt', 'LastLogonDate', 'msDS-UserPasswordExpiryTimeComputed')
     $listBad = @()
@@ -49,6 +49,9 @@ function Get-Lockout(){
     }
     #Write-Output $listBad
     $listBad | Format-Table
+    $end = Get-Date
+    $runtime = New-TimeSpan -Start $start -End $end
+    Write-Host $runtime
     if($servs.length -eq 0){break}
     $clearLocks = Read-Host -Prompt "Press enter to unlock, press Ctrl+C to exit"
 
@@ -82,6 +85,7 @@ Function Clear-Lockout{
     )
     
     $creds = Get-Credential
+    $start = Get-Date
 
     if($Servers -eq $null){
         $Servers = Get-ADDomainController -Filter *
@@ -90,5 +94,8 @@ Function Clear-Lockout{
         Unlock-ADAccount -Identity $User -Server $Server -Credential $creds
         Write-Host $Server " unlocked"
     }
+    $end = Get-Date
+    $runTime = New-TimeSpan -Start $start -End $end
+    Write-Host $runTime
     #Invoke-Command -ComputerName $Servers -Credential $creds {Unlock-ADAccount -Identity $User -Credential $creds}
 }
