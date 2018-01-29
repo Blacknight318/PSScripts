@@ -26,12 +26,18 @@ function Get-Lockout(){
         Param(
             $userName,
             $serverName)
+        
         $runup = Get-Date
         $lockup = Get-ADUser -Identity $userName -Server $serverName -Properties LockedOut,BadlogonCount,AccountLockoutTime -ErrorAction Stop
+        $rundown = Get-Date
+        $runTime = New-TimeSpan -Start $runup -End $rundown
+
         $writeItem = New-Object System.Object
                 $writeItem | Add-Member NoteProperty -Name "Domain Controller" -Value $serverName
                 $writeItem | Add-Member NoteProperty -Name "Bad Attempts" -Value $lockup.BadLogonCount
                 $writeItem | Add-Member NoteProperty -Name "Lockout time" -Value $lockup.AccountLockoutTime
+                $writeItem | Add-Member NoteProperty -Name "Locked Out" -Value $lockup.LockedOut
+                $writeItem | Add-Member NoteProperty -Name "TTR" -Value $runTime
         $writeItem | Export-Csv -Append -Path "C:\temp\pslock.csv"
     }
     
@@ -55,4 +61,66 @@ function Get-Lockout(){
     Write-Host $runtime
     Get-Job | Remove-Job |
     Remove-Item -Path "C:\temp\pslock.csv"
+}
+
+Function Clear-Lockout{
+    <#
+    .Synopsis
+        Clear Lockouts
+    .Description
+        Clear lockouts for a given user on all supplied Domain Controllers
+    .Inputs
+        Active Directory Username(required) and Domain Controllers(optional, if none supplied all available Domain Controllers will be cleared)
+    .Outputs
+        Servers where lockouts were cleared
+    .Link
+        https://github.com/Blacknight318/PSScripts/blob/master/ADLockoutModule.ps1
+    #>
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$User,
+
+        [Parameter(Mandatory=$false)]
+        [string[]]$Servers
+    )
+    
+    $creds = Get-Credential
+    $start = Get-Date
+
+    $unlock = {
+        Param(
+            $userName,
+            $serverName,
+            $creds)
+        
+        $runup = Get-Date
+        Unlock-ADAccount -Identity $User -Server $Server -Credential $creds
+        $rundown = Get-Date
+        $runtime = New-TimeSpan -Start $runup -End $rundown
+        $writeItem = New-Object System.Object
+                $writeItem | Add-Member NoteProperty -Name "Domain Controller" -Value $Server
+                $writeItem | Add-Member NoteProperty -Name "TTR" -Value $runtime
+        $writeItem | Export-Csv -Append -Path "C:\temp\clearedLocks.csv"
+    }
+
+    if($Servers -eq $null){
+        $Servers = Get-ADDomainController -Filter *
+    }
+    foreach($Server in $Servers){
+        Start-Job -ScriptBlock $unlock -ArgumentList @($User, $Server, $creds) | Out-Null
+        #Write-Host $Server " unlocked"
+    }
+
+    Get-Job | Wait-Job | Out-Null
+    $end = Get-Date
+    $runTime = New-TimeSpan -Start $start -End $end
+    
+    $cleared = Import-Csv -Path "C:\temp\clearedLocks.csv" 
+    $cleared | Format-Table
+    Write-Host $runTime
+    #Invoke-Command -ComputerName $Servers -Credential $creds {Unlock-ADAccount -Identity $User -Credential $creds}
+    Remove-Item -Path "C:\temp\clearedLocks.csv"
 }
