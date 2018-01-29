@@ -59,7 +59,7 @@ function Get-Lockout(){
     $end = Get-Date
     $runtime = New-TimeSpan -Start $start -End $end
     Write-Host $runtime
-    Get-Job | Remove-Job |
+    Get-Job | Remove-Job
     Remove-Item -Path "C:\temp\pslock.csv"
 }
 
@@ -97,11 +97,11 @@ Function Clear-Lockout{
             $creds)
         
         $runup = Get-Date
-        Unlock-ADAccount -Identity $User -Server $Server -Credential $creds
+        Unlock-ADAccount -Identity $userName -Server $serverName -Credential $creds
         $rundown = Get-Date
         $runtime = New-TimeSpan -Start $runup -End $rundown
         $writeItem = New-Object System.Object
-                $writeItem | Add-Member NoteProperty -Name "Domain Controller" -Value $Server
+                $writeItem | Add-Member NoteProperty -Name "Domain Controller" -Value $serverName
                 $writeItem | Add-Member NoteProperty -Name "TTR" -Value $runtime
         $writeItem | Export-Csv -Append -Path "C:\temp\clearedLocks.csv"
     }
@@ -122,5 +122,6 @@ Function Clear-Lockout{
     $cleared | Format-Table
     Write-Host $runTime
     #Invoke-Command -ComputerName $Servers -Credential $creds {Unlock-ADAccount -Identity $User -Credential $creds}
+    Get-Job | Remove-Job
     Remove-Item -Path "C:\temp\clearedLocks.csv"
 }
