@@ -11,7 +11,7 @@ function Get-Lockout(){
     .Outputs
         List of servers, number of failed attempts, and lockout time. This also spits out an object for further use.
     .Link
-        https://github.com/Blacknight318/PSScripts/blob/master/ADLockoutModule.ps1
+        https://github.com/Blacknight318/PSScripts/blob/master/ADLockoutMulti.ps1
     #>
 
     [CmdletBinding()]
@@ -22,7 +22,12 @@ function Get-Lockout(){
     )
     $start = Get-Date
     $DomainControllers = Get-ADDomainController -Filter *
-    $unlock = {
+    
+    <#
+    The below function sets up the jobs to be cast and run by the main loop. 
+    You could iterate Invoke-Command but this only works on servers with PSRemote connections allowed.
+    #>
+    $getLock = {
         Param(
             $userName,
             $serverName)
@@ -49,7 +54,7 @@ function Get-Lockout(){
     foreach ($DC in $DomainControllers){
         IF ($blist -contains $DC.Name) {break} #Blacklist for readonly or  a DR DC
         $Server = $DC.Name
-        Start-Job -ScriptBlock $unlock -ArgumentList @($User,$Server) | Out-Null
+        Start-Job -ScriptBlock $getLock -ArgumentList @($User,$Server) | Out-Null
     }
     Get-Job | Wait-Job | Out-Null
 
@@ -74,7 +79,7 @@ Function Clear-Lockout{
     .Outputs
         Servers where lockouts were cleared
     .Link
-        https://github.com/Blacknight318/PSScripts/blob/master/ADLockoutModule.ps1
+        https://github.com/Blacknight318/PSScripts/blob/master/ADLockoutMulti.ps1
     #>
 
     [CmdletBinding()]
@@ -84,12 +89,21 @@ Function Clear-Lockout{
         [string]$User,
 
         [Parameter(Mandatory=$false)]
-        [string[]]$Servers
+        [string[]]$Servers,
+
+        [Parameter(Mandatory=$false)]
+        [switch]$Login
     )
     
-    $creds = Get-Credential
+    if($Login -eq $true -and $creds -eq $null){
+        $creds = Get-Credential
+    }
     $start = Get-Date
-
+    
+    <#
+    The below function sets up the jobs to be cast and run by the main loop. 
+    You could iterate Invoke-Command but this only works on servers with PSRemote connections allowed.
+    #>
     $unlock = {
         Param(
             $userName,
@@ -97,7 +111,12 @@ Function Clear-Lockout{
             $creds)
         
         $runup = Get-Date
-        Unlock-ADAccount -Identity $userName -Server $serverName -Credential $creds
+        if($creds -ne $null){
+            Unlock-ADAccount -Identity $userName -Server $serverName -Credential $creds
+        }
+        else{
+            Unlock-ADAccount -Identity $userName -Server $serverName
+        }
         $rundown = Get-Date
         $runtime = New-TimeSpan -Start $runup -End $rundown
         $writeItem = New-Object System.Object
