@@ -4,11 +4,11 @@ $UpdateID = @("506E3", "406E3")
 #Pulls OS Version
 $osver = (Get-CimInstance Win32_OperatingSystem).Version
 if($osver -eq "10.0.16299"){
-    $oschk = "True"
+    $oschk = "Yes"
     $oschkColor = "Green"
 }
 else {
-    $oschk = "False"
+    $oschk = "No"
     $oschkColor = "Red"
 }
 
@@ -17,29 +17,30 @@ $ProcID = Get-WmiObject win32_Processor -Property ProcessorID | Select-Object -P
 $prod = $ProcID.ProcessorID
 $ipid = $prod.Substring($prod.Length -5)
 if($UpdateID -contains $ipid){
-    $cpuchk = "True"
+    $cpuchk = "Yes"
     $cpuchkColor = "Green"
 }
 else {
-    $cpuchk = "False"
+    $cpuchk = "No"
     $cpuchkColor = "Red"
 }
 
-#Value compare to see if system is ready to receive
-if($oschk -eq "True" -and $cpuchk -eq "True"){
-    $upgrade = "True"
-    $upgradeColor = "Green"
+#Check for presence of KB4090007
+$patch = Get-HotFix KB4090007 -ErrorAction SilentlyContinue
+if($patch -ne $null){
+    $patchStat = "Yes"
+    $patchStatColor = "Green"
 }
 else {
-    $upgrade = "False"
-    $upgradeColor = "Red"
+    $patchStat = "No"
+    $patchStatColor = "Red"
 }
 
 #Lets see our results
-Write-Host("Is Windows compatible with KB4090007: ") -NoNewline -ForegroundColor White
+Write-Host("Is Windows compatible with KB4090007:    ") -NoNewline -ForegroundColor Yellow
 Write-Host($oschk) -ForegroundColor $oschkColor
-Write-Host("Is CPU Compatible with KB4090007: ") -NoNewline -ForegroundColor White
+Write-Host("Is CPU Compatible with KB4090007:        ") -NoNewline -ForegroundColor Yellow
 Write-Host($cpuchk) -ForegroundColor $cpuchkColor
-Write-Host("Is this machine recommended to install KB4090007: ") -NoNewline -ForegroundColor White
-Write-Host($upgrade) -ForegroundColor $upgradeColor
+Write-Host("Is this machine has KB4090007 installed: ") -NoNewline -ForegroundColor Yellow
+Write-Host($patchStat) -ForegroundColor $patchStatColor
 
