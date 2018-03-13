@@ -1,5 +1,5 @@
 #CPUID's affected from https://support.microsoft.com/en-us/help/4090007/intel-microcode-updates
-$UpdateID = @("506E3", "406E3")
+$UpdateID = @("506E3", "406E3", "50654", "806E9", "806EA", "906E9", "906EA", "906EB")
 
 #Pulls OS Version
 $osver = (Get-CimInstance Win32_OperatingSystem).Version
