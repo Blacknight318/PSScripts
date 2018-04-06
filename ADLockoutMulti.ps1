@@ -33,8 +33,13 @@ function Get-Lockout(){
             $serverName)
         
         $runup = Get-Date
-        $lockup = Get-ADUser -Identity $userName -Server $serverName -Properties LockedOut,BadlogonCount,AccountLockoutTime -ErrorAction Stop
-        $rundown = Get-Date
+        try {
+            $lockup = Get-ADUser -Identity $userName -Server $serverName -Properties LockedOut,BadlogonCount,AccountLockoutTime -ErrorAction Stop
+        }
+        catch {
+            $serverName = $serverName + " FAILED!!!"
+        }
+            $rundown = Get-Date
         $runTime = New-TimeSpan -Start $runup -End $rundown
 
         $writeItem = New-Object System.Object
@@ -52,7 +57,7 @@ function Get-Lockout(){
     catch {}
 
     foreach ($DC in $DomainControllers){
-        IF ($blist -contains $DC.Name) {break} #Blacklist for readonly or  a DR DC
+        IF ($blist -contains $DC.Name) {continue} #Blacklist for readonly DR/DC
         $Server = $DC.Name
         Start-Job -ScriptBlock $getLock -ArgumentList @($User,$Server) | Out-Null
     }
@@ -75,7 +80,7 @@ Function Clear-Lockout{
     .Description
         Clear lockouts for a given user on all supplied Domain Controllers
     .Inputs
-        Active Directory Username(required) and Domain Controllers(optional, if none supplied all available Domain Controllers will be cleared)
+        Active Directory Username(required) and Domain Controllers(optional, if none supplied all available Domain Controllers will be cleared), also -Login to prompt for creds
     .Outputs
         Servers where lockouts were cleared
     .Link
@@ -111,11 +116,16 @@ Function Clear-Lockout{
             $creds)
         
         $runup = Get-Date
-        if($creds -ne $null){
-            Unlock-ADAccount -Identity $userName -Server $serverName -Credential $creds
+        try {
+            if($creds -ne $null){
+                Unlock-ADAccount -Identity $userName -Server $serverName -Credential $creds
+            }
+            else{
+                Unlock-ADAccount -Identity $userName -Server $serverName
+            }
         }
-        else{
-            Unlock-ADAccount -Identity $userName -Server $serverName
+        catch {
+            $serverName = $serverName + " FAILED!!!"
         }
         $rundown = Get-Date
         $runtime = New-TimeSpan -Start $runup -End $rundown
@@ -128,7 +138,14 @@ Function Clear-Lockout{
     if($Servers -eq $null){
         $Servers = Get-ADDomainController -Filter *
     }
+    
+    try {
+        [string[]] $blist = Get-Content blistdc.txt -ErrorAction Stop
+    }
+    catch {}
+
     foreach($Server in $Servers){
+        IF ($blist -contains $Server.Name) {continue} #Blacklist for readonly DR/DC
         Start-Job -ScriptBlock $unlock -ArgumentList @($User, $Server, $creds) | Out-Null
         #Write-Host $Server " unlocked"
     }

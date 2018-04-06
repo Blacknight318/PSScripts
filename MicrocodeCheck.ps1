@@ -1,3 +1,4 @@
+#Last Updated/Verified April 6th, 2018
 #CPUID's affected from https://support.microsoft.com/en-us/help/4090007/intel-microcode-updates
 $UpdateID = @("506E3", "406E3", "50654", "806E9", "806EA", "906E9", "906EA", "906EB")
 
