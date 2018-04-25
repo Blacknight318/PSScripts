@@ -1,6 +1,6 @@
-#Last Updated/Verified April 6th, 2018
+#Last Updated/Verified April 25th, 2018
 #CPUID's affected from https://support.microsoft.com/en-us/help/4090007/intel-microcode-updates
-$UpdateID = @("506E3", "406E3", "50654", "806E9", "806EA", "906E9", "906EA", "906EB")
+$UpdateID = @("506E3", "406E3", "50654", "806E9", "806EA", "906E9", "906EA", "906EB", "50665","50662","50663","50664","40671","306D4","40671","306C3","40661","306F2","40651")
 
 #Pulls OS Version
 $osver = (Get-CimInstance Win32_OperatingSystem).Version
