@@ -27,7 +27,7 @@ while($true){
     $writeItem = New-Object System.Object
        $writeItem | Add-Member NoteProperty -Name "Temp Farenheit" -Value $temp
        $writeItem | Add-Member NoteProperty -Name "Timestamp" -Value $timestamp
-    $writeItem | Export-Csv -NoTypeInformation -Append -Path $logLocation
+    $writeItem | Export-Csv -NoTypeInformation -Append -Path "$logLocation\temp_Log_for_$((Get-Date).ToString('MM-dd-yy')).csv"
     $writeItem
     Start-Sleep -s 5
 }
