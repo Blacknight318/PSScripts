@@ -51,10 +51,18 @@ function Get-Lockout(){
         $writeItem | Export-Csv -Append -Path "C:\temp\pslock.csv"
     }
     
+    #Loading a blacklist text file of DC's to be skipped
     try {
         [string[]] $blist = Get-Content blistdc.txt -ErrorAction Stop
     }
     catch {}
+    
+    #The next If statement check is for expired passwords
+    $expo = Get-ADUser -Identity $User -Properties PasswordExpired
+    if($expo -eq $true){
+        $cont = Read-Host -Prompt "$user has an expired password, continue? "
+        
+    }
 
     foreach ($DC in $DomainControllers){
         IF ($blist -contains $DC.Name) {continue} #Blacklist for readonly DR/DC
