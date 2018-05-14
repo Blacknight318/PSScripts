@@ -59,9 +59,10 @@ function Get-Lockout(){
     
     #The next If statement check is for expired passwords
     $expo = Get-ADUser -Identity $User -Properties PasswordExpired
-    if($expo -eq $true){
-        $cont = Read-Host -Prompt "$user has an expired password, continue? "
-        
+    if($expo.PasswordExpired -eq $true){
+        Write-Host "Password has expired for $user, press any key to continue." -ForegroundColor "Red"
+        Read-Host
+        #Read-Host -Prompt "$user has an expired password, press any key to continue" 
     }
 
     foreach ($DC in $DomainControllers){
