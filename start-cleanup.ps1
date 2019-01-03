@@ -4,7 +4,7 @@ Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer
 
 Write-Host "Setting CleanMgr.exe automation settings, please wait..."
 New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Active Setup Temp Folders' -Name StateFlags0001 -Value 2 -PropertyType DWord
-New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\BranchCach' -Name StateFlags0001 -Value 2 -PropertyType DWord
+#New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\BranchCach' -Name StateFlags0001 -Value 2 -PropertyType DWord
 New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Downloaded Program Files' -Name StateFlags0001 -Value 2 -PropertyType DWord
 New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\GameNewsFiles' -Name StateFlags0001 -Value 2 -PropertyType DWord
 New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\GameStatisticsFiles' -Name StateFlags0001 -Value 2 -PropertyType DWord
@@ -24,30 +24,38 @@ New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer
 New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Thumbnail Cache' -Name StateFlags0001 -Value 2 -PropertyType DWord
 New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Update Cleanup' -Name StateFlags0001 -Value 2 -PropertyType DWord
 New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Upgrade Discarded Files' -Name StateFlags0001 -Value 2 -PropertyType DWord
-New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\User file versions' -Name StateFlags0001 -Value 2 -PropertyType DWord
-New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows Defender' -Name StateFlags0001 -Value 2 -PropertyType DWord
+#New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\User file versions' -Name StateFlags0001 -Value 2 -PropertyType DWord
+#New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows Defender' -Name StateFlags0001 -Value 2 -PropertyType DWord
 New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows Error Reporting Archive Files' -Name StateFlags0001 -Value 2 -PropertyType DWord
 New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows Error Reporting Queue Files' -Name StateFlags0001 -Value 2 -PropertyType DWord
 New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows Error Reporting System Archive Files' -Name StateFlags0001 -Value 2 -PropertyType DWord
 New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows Error Reporting System Queue Files' -Name StateFlags0001 -Value 2 -PropertyType DWord
-New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows ESD Installation Files' -Name StateFlags0001 -Value 2 -PropertyType DWord
+#New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows ESD Installation Files' -Name StateFlags0001 -Value 2 -PropertyType DWord
 New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Windows Upgrade Log Files' -Name StateFlags0001 -Value 2 -PropertyType DWord
 Write-Host "CleanMgr.exe automation settings are now set."
+Read-Host "Press enter to continue: "
 
 #Cleaning up unused devices
 Write-Host "Cleaning up all unused devices from the system."
-Start-Process -FilePath DeviceCleanupCmd.exe -ArgumentList '*'
-Write-Host "Device cleanup complete."
+#Start-Process -FilePath DeviceCleanupCmd.exe -ArgumentList '*'
+DeviceCleanupCmd.exe *
+#Write-Host "Device cleanup complete."
+Read-Host "Press enter to continue: "
 
 #Run TFC first
-Write-Host "Please press start and wait until a Windows Explorer pops up, then close and continue."
-Start-Process -FilePath tfc.exe
+#Write-Host "Please press start and wait until a Windows Explorer pops up, then close and continue."
+#Start-Process -FilePath tfc.exe
+#tfc.exe
 
 #Running and waiting on CleanMgr.exe
 Write-Host "Starting CleanMgr.exe job with parameters"
-Start-Process -FilePath CleanMgr.exe -ArgumentList '/sagerun:1' -WindowStyle Hidden -Wait
-Get-Process -Name cleanmgr,devicecleanupcmd,tfc -ErrorAction SilentlyContinue | Wait-Process
+#Start-Process -FilePath CleanMgr.exe -ArgumentList '/sagerun:1' -WindowStyle Hidden -Wait
+CleanMgr.exe /sagerun:1
+#Get-Process -Name cleanmgr,devicecleanupcmd,tfc -ErrorAction SilentlyContinue | Wait-Process
+#Get-Process -Name cleanmgr -ErrorAction SilentlyContinue | Wait-Process
 Write-Host "CleanMgr.exe is complete, time to reboot!"
+Read-Host "Press enter to continue: "
 
 #Must reboot to complete cleanup, this may take a while
-shutdown.exe /r /f /t 0 /c
+#shutdown.exe /r /f /t 0 /c
+shutdown.exe /r /f /t 0
