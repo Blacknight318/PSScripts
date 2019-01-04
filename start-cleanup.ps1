@@ -35,27 +35,25 @@ New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer
 Write-Host "CleanMgr.exe automation settings are now set."
 Read-Host "Press enter to continue: "
 
-#Cleaning up unused devices
+#Cleaning up unused devices REF:https://www.uwe-sieber.de/misc_tools_e.html
 Write-Host "Cleaning up all unused devices from the system."
-#Start-Process -FilePath DeviceCleanupCmd.exe -ArgumentList '*'
-DeviceCleanupCmd.exe *
-#Write-Host "Device cleanup complete."
-Read-Host "Press enter to continue: "
+Start-Process -FilePath DeviceCleanupCmd.exe -ArgumentList '*'
+Get-Process -Name DeviceCleanupCmd -ErrorAction SilentlyContinue | Wait-Processj
+Write-Host "Device cleanup complete."
 
-#Run TFC first
-#Write-Host "Please press start and wait until a Windows Explorer pops up, then close and continue."
-#Start-Process -FilePath tfc.exe
-#tfc.exe
+#Run TFC first REF:http://www.geekstogo.com/forum/files/file/187-tfc-temp-file-cleaner-by-oldtimer/
+Write-Host "When TFC starts please press the start button and wait until a Windows Explorer pops up, then close and continue."
+Start-Process -FilePath tfc.exe
+Get-Process -Name tfc -ErrorAction SilentlyContinue | Wait-Process
+Write-Host "TFC closed"
 
 #Running and waiting on CleanMgr.exe
+Read-Host "Press enter to begin CleanMgr and restart"
 Write-Host "Starting CleanMgr.exe job with parameters"
-#Start-Process -FilePath CleanMgr.exe -ArgumentList '/sagerun:1' -WindowStyle Hidden -Wait
-CleanMgr.exe /sagerun:1
-#Get-Process -Name cleanmgr,devicecleanupcmd,tfc -ErrorAction SilentlyContinue | Wait-Process
-#Get-Process -Name cleanmgr -ErrorAction SilentlyContinue | Wait-Process
-Write-Host "CleanMgr.exe is complete, time to reboot!"
-Read-Host "Press enter to continue: "
+Start-Process -FilePath CleanMgr.exe -ArgumentList '/sagerun:1' -WindowStyle Hidden -Wait
+Get-Process -Name cleanmgr -ErrorAction SilentlyContinue | Wait-Process
+Write-Host "CleanMgr.exe is complete, System will reboot in 1 miunte!!"
+Start-Sleep -Seconds 60
 
 #Must reboot to complete cleanup, this may take a while
-#shutdown.exe /r /f /t 0 /c
 shutdown.exe /r /f /t 0
