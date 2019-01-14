@@ -38,7 +38,7 @@ Read-Host "Press enter to continue: "
 #Cleaning up unused devices REF:https://www.uwe-sieber.de/misc_tools_e.html
 Write-Host "Cleaning up all unused devices from the system."
 Start-Process -FilePath DeviceCleanupCmd.exe -ArgumentList '*'
-Get-Process -Name DeviceCleanupCmd -ErrorAction SilentlyContinue | Wait-Processj
+Get-Process -Name DeviceCleanupCmd -ErrorAction SilentlyContinue | Wait-Process
 Write-Host "Device cleanup complete."
 
 #Run TFC first REF:http://www.geekstogo.com/forum/files/file/187-tfc-temp-file-cleaner-by-oldtimer/
