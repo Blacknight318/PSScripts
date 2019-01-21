@@ -1,3 +1,6 @@
+#REF: https://support.microsoft.com/en-us/help/4487266/activation-failures-and-not-genuine-notifications-on-vl-win-7-kms-clie
+#This is an early version of the script for immediate use in my current role and has not yet been tested
+
 #Check for problem update
 $check = Get-HotFix -Id KB971033
 
