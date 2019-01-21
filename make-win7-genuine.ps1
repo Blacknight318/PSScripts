@@ -1,5 +1,5 @@
 #REF: https://support.microsoft.com/en-us/help/4487266/activation-failures-and-not-genuine-notifications-on-vl-win-7-kms-clie
-#This is an early version of the script for immediate use in my current role and has not yet been tested
+#This has now been tested, tweaked, and retested and now works!
 
 #Check for problem update
 $check = Get-HotFix -Id KB971033
@@ -16,10 +16,10 @@ Set-Service -Name sppuinotify -StartupType Disabled
 Stop-Service -Name sppsvc
 
 #Cleanup KMS cache
-Remove-Item C:\Windows\system32\7B296FB0-376B-497e-B012-9C450E1B7327-5P-0.C7483456-A289-439d-8115-601632D005A0
-Remove-Item C:\Windows\system32\7B296FB0-376B-497e-B012-9C450E1B7327-5P-1.C7483456-A289-439d-8115-601632D005A0
-Remove-Item C:\Windows\\ServiceProfiles\NetworkService\AppData\Roaming\Microsoft\SoftwareProtectionPlatform\tokens.dat
-Remove-Item C:\Windows\\ServiceProfiles\NetworkService\AppData\Roaming\Microsoft\SoftwareProtectionPlatform\cache\cache.dat
+Remove-Item C:\Windows\system32\7B296FB0-376B-497e-B012-9C450E1B7327-5P-0.C7483456-A289-439d-8115-601632D005A0 -Force
+Remove-Item C:\Windows\system32\7B296FB0-376B-497e-B012-9C450E1B7327-5P-1.C7483456-A289-439d-8115-601632D005A0 -Force
+Remove-Item C:\Windows\\ServiceProfiles\NetworkService\AppData\Roaming\Microsoft\SoftwareProtectionPlatform\tokens.dat -Force
+Remove-Item C:\Windows\\ServiceProfiles\NetworkService\AppData\Roaming\Microsoft\SoftwareProtectionPlatform\cache\cache.dat -Force
 
 #Starting back up the Software Protectio(sppsvc)
 Start-Service -Name sppsvc
@@ -31,7 +31,7 @@ Start-Process -FilePath cscript.exe -ArgumentList 'C:\windows\system32\slmgr.vbs
 Get-Process -Name cscript | Wait-Process
 
 #Set sppuinotify service back to on demand
-Set-Service -Name sppuinotify -StartupType demand
+Set-Service -Name sppuinotify -StartupType manual
 
 Write-Host 'Registration complete, computer will reboot in 1 minute!!'
 Start-Sleep -Seconds 60
