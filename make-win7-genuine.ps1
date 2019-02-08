@@ -1,5 +1,5 @@
 #REF: https://support.microsoft.com/en-us/help/4487266/activation-failures-and-not-genuine-notifications-on-vl-win-7-kms-clie
-#This has now been tested, tweaked, and retested and now works!
+#This is an early version of the script for immediate use in my current role and has not yet been tested
 
 #Check for problem update
 $check = Get-HotFix -Id KB971033
@@ -31,7 +31,7 @@ Start-Process -FilePath cscript.exe -ArgumentList 'C:\windows\system32\slmgr.vbs
 Get-Process -Name cscript | Wait-Process
 
 #Set sppuinotify service back to on demand
-Set-Service -Name sppuinotify -StartupType manual
+Set-Service -Name sppuinotify -StartupType Manual
 
 Write-Host 'Registration complete, computer will reboot in 1 minute!!'
 Start-Sleep -Seconds 60
