@@ -52,8 +52,8 @@ Read-Host "Press enter to begin CleanMgr and restart"
 Write-Host "Starting CleanMgr.exe job with parameters"
 Start-Process -FilePath CleanMgr.exe -ArgumentList '/sagerun:1' -WindowStyle Hidden -Wait
 Get-Process -Name cleanmgr -ErrorAction SilentlyContinue | Wait-Process
-Write-Host "CleanMgr.exe is complete, System will reboot in 1 miunte!!"
-Start-Sleep -Seconds 60
+#Write-Host "CleanMgr.exe is complete, System will reboot in 1 miunte!!"
+#Start-Sleep -Seconds 60
 
 #Must reboot to complete cleanup, this may take a while
-shutdown.exe /r /f /t 0
+#shutdown.exe /r /f /t 0
